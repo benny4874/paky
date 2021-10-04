@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.masa
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [app-name, aws-lambda, java, java-application, junit, logback, maven, readme, shade, yaml]

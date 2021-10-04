@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+	<changeSet id="create-table-utente"
+         		author="rbenazzato">
+		<createTable tableName="UTENTE">
+			<column name="ID_UTENTE"
+      				type="varchar(20${char})">
+				<constraints primaryKey="true"
+           					primaryKeyName="PK_UTENTE"/>
+			</column>
+			<column name="ID_SSO"
+      				type="varchar(36${char})">
+				<constraints nullable="false"
+           					unique="true"/>
+			</column>
+		</createTable>
+		<rollback>
+			<dropTable tableName="UTENTE"/>
+		</rollback>
+	</changeSet>
+	<changeSet id="create-table-vendor"
+         		author="rbenazzato">
+		<createTable tableName="VENDOR">
+			<column name="VENDOR_ID"
+      				type="varchar(20${char})">
+				<constraints primaryKey="true"
+           					primaryKeyName="PK_VENDOR"/>
+			</column>
+			<column name="ID_SSO"
+      				type="varchar(36${char})">
+				<constraints nullable="false"
+           					unique="true"/>
+			</column>
+		</createTable>
+		<rollback>
+			<dropTable tableName="VENDOR"/>
+		</rollback>
+	</changeSet>
+	<changeSet id="create-table-tipoprodotto"
+         		author="rbenazzato">
+		<createTable tableName="PRODUCT_TYPE">
+			<column name="PRODUCT_TYPE_ID"
+      				type="varchar(10${char})">
+				<constraints primaryKey="true"
+           					primaryKeyName="PK_TIPO_PRODOTTO"/>
+			</column>
+			<column name="DESCRIPTION"
+      				type="varchar(255${char})">
+			</column>
+		</createTable>
+		<rollback>
+			<dropTable tableName="PRODUCT_TYPE"/>
+		</rollback>
+	</changeSet>
+	<changeSet id="create-table-machinery"
+			   author="rbenazzato">
+		<createTable tableName="MACHINERY">
+			<column name="MACHINERY_ID"
+					type="varchar(100)">
+				<constraints primaryKey="true"
+							 primaryKeyName="PK_PRODOTTO"/>
+			</column>
+			<column name="RECIPE_ID"
+					type="varchar(20${char})"/>
+			<column name="VENDOR_ID"
+					type="varchar(20${char})"/>
+			<column name="DESCRIPTION"
+					type="varchar(255)"/>
+
+		</createTable>
+	</changeSet>
+	<changeSet id="create-table-recipe"
+         		author="rbenazzato">
+		<createTable tableName="RECIPE">
+			<column name="RECIPE_ID"
+      				type="varchar(100)">
+				<constraints primaryKey="true"
+           					primaryKeyName="PK_RECIPE"/>
+			</column>
+			<column name="QUANTITY"
+      				type="float"
+      				defaultValueNumeric="0"/>
+			<column name="UNIT"
+      				type="char(2)"/>
+			<column name="BRAND"
+      				type="varchar(20${char})"/>
+			<column name="EXPIRATION"
+      				type="varchar(20${char})"/>
+			<column name="LABEL"
+      				type="clob"/>
+		</createTable>
+		<rollback>
+			<dropTable tableName="RECIPE"/>
+		</rollback>
+	</changeSet>
+	<changeSet id="create-table-paky"
+         		author="rbenazzato">
+		<createTable tableName="PAKY">
+			<column name="ID_PAKY"
+      				type="varchar(100)">
+				<constraints primaryKey="true"
+           					primaryKeyName="PK_PAKY"/>
+			</column>
+			<column name="topic"
+      				type="varchar(255${char})"/>
+			<column name="QUANTITA_PCT"
+      				type="float"
+      				defaultValueNumeric="0"/>
+			<column name="QUANTITA"
+      				type="float"
+      				defaultValueNumeric="0"/>
+			<column name="CUSTOMER_ID" type="varchar(20${char})"/>
+			<column name="STEP" type="varchar(20${char})"/>
+			<column name="PRODUCT_TYPE_ID" type="varchar(20${char})"/>
+			<column name="VENDOR_ID" type="varchar(20${char})"/>
+			<column name="DATE_CREATED" type="date"/>
+			<column name="LAST_ACTION" type="date"/>
+			<column name="PACKING_DATE"
+					type="varchar(20${char})"/>
+			<column name="UNIT"
+					type="char(2)"/>
+			<column name="BRAND"
+					type="varchar(20${char})"/>
+			<column name="EXPIRATION"
+					type="varchar(20${char})"/>
+			<column name="LABEL"
+					type="clob"/>
+			<column name="TRACIABILITY_STATUS" type="varchar(20${char})"/>
+			<column name="ERROR_CODE" type="number"/>
+
+		</createTable>
+		<rollback>
+			<dropTable tableName="PAKY"/>
+		</rollback>
+	</changeSet>
+	<!--changeSet author="rbenazzato"
+         		id="add-fk-paky-prodotto">
+		<addForeignKeyConstraint baseColumnNames="PRODUCT_TYPE"
+                       			baseTableName="PAKY"
+                       			constraintName="fk_prodotto"
+                       			referencedColumnNames="PRODUCT_TYPE"
+                       			referencedTableName="PRODUCT_TYPE"
+                       			validate="true"/>
+	</changeSet-->
+	<!--changeSet author="rbenazzato"
+         		id="add-fk-prodotto-tipoprodotto">
+		<addForeignKeyConstraint baseColumnNames="id_tipo_prodotto"
+                       			baseTableName="PRODOTTO"
+                       			constraintName="fk_tipo_prodotto"
+                       			referencedColumnNames="ID_TIPO_PRODOTTO"
+                       			referencedTableName="TIPO_PRODOTTO"
+                       			validate="true"/>
+	</changeSet-->
+	<!--changeSet author="rbenazzato"
+         		id="add-commerciante-paky">
+		<addColumn tableName="PAKY" >
+			<column name="VENDOR_ID"
+      				type="varchar(20)"/>
+		</addColumn>
+	</changeSet-->
+	<!--changeSet author="rbenazzato"
+         		id="add-fk-commerciante-paky">
+		<addForeignKeyConstraint baseColumnNames="VENDOR_ID"
+                       			baseTableName="PAKY"
+                       			constraintName="fk_paky_vendor"
+                       			referencedColumnNames="VENDOR_ID"
+                       			referencedTableName="VENDOR"
+                       			validate="true"/>
+	</changeSet-->
+	<changeSet id="tag-1.0.0"
+         		author="rbenazzato">
+		<tagDatabase tag="1.0.0"/>
+	</changeSet>
+</databaseChangeLog>
