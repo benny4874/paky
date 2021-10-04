@@ -33,6 +33,7 @@ public class PakyRefillerManager {
         final Paky paky = get(pakyId);
         paky.setTraciabilityStatus(ERROR);
         paky.setErrorCode(FILLED_WITH_UNKNOWN_PRODUCT);
+        pakyRepository.update(paky);
     }
 
     private PakyLifeCycleHandlerFactory withLifeCicleHandlerFactory() {
