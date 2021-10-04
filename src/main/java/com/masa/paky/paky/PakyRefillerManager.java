@@ -8,6 +8,9 @@ import com.masa.paky.recipe.entity.Recipe;
 import com.masa.paky.recipe.exceptions.RecipeNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import static com.masa.paky.paky.entity.ErrorStatus.FILLED_WITH_UNKNOWN_PRODUCT;
+import static com.masa.paky.paky.entity.TraciabilityStatus.ERROR;
+
 @RequiredArgsConstructor
 public class PakyRefillerManager {
 
@@ -16,10 +19,20 @@ public class PakyRefillerManager {
     public final MachineryRepository machineryRepository;
 
     public void refill(String machineryId, String pakyId){
-        withLifeCicleHandlerFactory()
-                .getFor(get(pakyId))
-               .fill(getActiveRecipeOn(machineryId));
+        try {
+            withLifeCicleHandlerFactory()
+                    .getFor(get(pakyId))
+                    .fill(getActiveRecipeOn(machineryId));
+        } catch (RecipeNotFoundException unknownProductError){
+            reportTraciabilityError(pakyId);
+            throw unknownProductError;
+        }
+    }
 
+    private void reportTraciabilityError(String pakyId) {
+        final Paky paky = get(pakyId);
+        paky.setTraciabilityStatus(ERROR);
+        paky.setErrorCode(FILLED_WITH_UNKNOWN_PRODUCT);
     }
 
     private PakyLifeCycleHandlerFactory withLifeCicleHandlerFactory() {

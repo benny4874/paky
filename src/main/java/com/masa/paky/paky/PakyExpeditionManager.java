@@ -15,8 +15,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.masa.paky.paky.entity.ErrorStatus.*;
 import static com.masa.paky.paky.entity.PakyStatus.DELIVERED;
 import static com.masa.paky.paky.entity.PakyStatus.INTRANSIT;
+import static com.masa.paky.paky.entity.TraciabilityStatus.ERROR;
 
 @RequiredArgsConstructor
 public class PakyExpeditionManager<T extends Addressable, I extends Serializable> {
@@ -27,10 +29,22 @@ public class PakyExpeditionManager<T extends Addressable, I extends Serializable
 
     public void send(String pakyId, I vendorId) {
         final Paky paky = getPaky(pakyId);
-        checkVendor(vendorId);
-        checkRightCustomer(vendorId, paky);
-        expedit(paky);
-        persist(paky);
+        send(vendorId, paky);
+
+    }
+
+    private void send(I vendorId, Paky paky) {
+        try {
+            checkVendor(vendorId);
+            checkRightCustomer(vendorId, paky);
+            expedit(paky);
+        } catch (VendorNotFoundException | DestinationMissMatchException error){
+            paky.setTraciabilityStatus(ERROR);
+            paky.setErrorCode(SENT_TO_WRONG_VENDOR);
+            throw error;
+        }finally {
+            persist(paky);
+        }
     }
 
     private void checkVendor(I vendorId) {
@@ -39,8 +53,15 @@ public class PakyExpeditionManager<T extends Addressable, I extends Serializable
     }
 
     private void checkRightCustomer(I vendorId, Paky paky) {
-        if (!paky.getVendorId().equals(vendorId))
+        if (!paky.getVendorId().equals(vendorId)) {
+            paky.setTraciabilityStatus(ERROR);
+            paky.setErrorCode(RECEIVED_BY_WRONG_VENDOR);
             throw new DestinationMissMatchException(paky.getVendorId(), vendorId.toString());
+        }
+    }
+
+    private void receiveAnyWay(I vendorId, Paky paky) {
+        paky.setVendorId(vendorId.toString());
     }
 
     private void persist(Paky paky) {
@@ -63,16 +84,31 @@ public class PakyExpeditionManager<T extends Addressable, I extends Serializable
 
     public void receive(String pakyId, I vendorId) {
         final Paky paky = getPaky(pakyId);
-        checkThatPakyWasSent(pakyId, paky);
-        checkVendor(vendorId);
-        checkRightCustomer(vendorId, paky);
-        deliver(paky);
-        persist(paky);
+        receive( vendorId, paky);
+    }
+
+    private void receive( I vendorId, Paky paky) {
+        try {
+            checkThatPakyWasSent(paky.getIdPaky(), paky);
+            checkVendor(vendorId);
+            checkRightCustomer(vendorId, paky);
+        } catch(VendorNotFoundException vendorNotFound){
+                paky.setTraciabilityStatus(ERROR);
+                paky.setErrorCode(RECEIVED_BY_UNIDENTIFIED_VENDOR);
+                throw vendorNotFound;
+        }finally {
+            receiveAnyWay(vendorId, paky);
+            deliver(paky);
+            persist(paky);
+        }
     }
 
     private void checkThatPakyWasSent(String pakyId, Paky paky) {
-        if (isInTransit(paky))
+        if (isInTransit(paky)) {
+            paky.setTraciabilityStatus(ERROR);
+            paky.setErrorCode(RECEIVED_BUT_NEVER_SENT);
             throw new PakyNotInTransitException(pakyId, paky.getStep().name(), RECEIVE);
+        }
     }
 
     private boolean isInTransit(Paky paky) {
