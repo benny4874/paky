@@ -9,21 +9,21 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class MachineryRecipeLoader {
-    private final Recipe recipe;
-    private final Machinery machinery;
-    private final RecipeRepository recipeRepository;
-    private final MachineryRepository machineryRepository;
+  private final Recipe recipe;
+  private final Machinery machinery;
+  private final RecipeRepository recipeRepository;
+  private final MachineryRepository machineryRepository;
 
-    public void load() {
-        checkMachineryExists();
-        recipeRepository.save(recipe);
-        machinery.setRecipeId(recipe.getRecipeId());
-        machineryRepository.update(machinery);
-    }
+  public void load() {
+    checkMachineryExists();
+    recipeRepository.save(recipe);
+    machinery.setRecipeId(recipe.getRecipeId());
+    machineryRepository.update(machinery);
+  }
 
-    private void checkMachineryExists() {
-        machineryRepository
-                .findById(machinery.getMachineryId())
-                .orElseThrow(() ->new MachineryNotFoundException(machinery.getMachineryId()));
-    }
+  private void checkMachineryExists() {
+    machineryRepository
+        .findById(machinery.getMachineryId())
+        .orElseThrow(() -> new MachineryNotFoundException(machinery.getMachineryId()));
+  }
 }
