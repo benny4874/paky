@@ -1,4 +1,23 @@
-package com.masa.paky.paky;
+package com.masa.paky.paky.expedition;
+
+import com.masa.paky.AddressableFinder;
+import com.masa.paky.paky.entity.Paky;
+import com.masa.paky.paky.entity.PakyRepository;
+import com.masa.paky.paky.entity.PakyStatus;
+import com.masa.paky.paky.exceptions.DestinationMissMatchException;
+import com.masa.paky.paky.exceptions.PakyNotFoundException;
+import com.masa.paky.paky.exceptions.PakyNotInTransitException;
+import com.masa.paky.vendor.entity.Vendor;
+import com.masa.paky.vendor.exceptions.VendorNotFoundException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
 
 import static com.masa.paky.paky.entity.ErrorStatus.RECEIVED_BUT_NEVER_SENT;
 import static com.masa.paky.paky.entity.ErrorStatus.SENT_TO_WRONG_VENDOR;
@@ -8,36 +27,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import com.masa.paky.Addressable;
-import com.masa.paky.AddressableFinder;
-import com.masa.paky.paky.entity.Paky;
-import com.masa.paky.paky.entity.PakyRepository;
-import com.masa.paky.paky.entity.PakyStatus;
-import com.masa.paky.paky.exceptions.DestinationMissMatchException;
-import com.masa.paky.paky.exceptions.PakyNotFoundException;
-import com.masa.paky.paky.exceptions.PakyNotInTransitException;
-import com.masa.paky.vendor.exceptions.VendorNotFoundException;
-import java.io.Serializable;
-import java.util.Optional;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-class PakyExpeditionManagerTest {
-  @Mock AddressableFinder<Addressable, Serializable> repository;
+class VendorExpeditionManagerTest {
+  @Mock AddressableFinder<Vendor, String> repository;
   @Mock PakyRepository pakyRepository;
 
-  @Mock Addressable recipient;
+  @Mock Vendor recipient;
 
-  PakyExpeditionManager<Addressable, Serializable> underTest;
+  VendorExpeditionManager underTest;
 
-  public PakyExpeditionManagerTest() {
+  public VendorExpeditionManagerTest() {
     MockitoAnnotations.openMocks(this);
-    underTest = new PakyExpeditionManager<>(repository, pakyRepository);
+    underTest = new VendorExpeditionManager(repository, pakyRepository);
     when(repository.findById("aVendor")).thenReturn(Optional.of(recipient));
     when(repository.findById("anOtherVendor")).thenReturn(Optional.of(recipient));
     when(repository.findById(eq("aVendorThatNotExists"))).thenReturn(Optional.empty());

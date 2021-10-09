@@ -3,13 +3,13 @@
                  	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
-	<changeSet id="create-table-utente"
+	<changeSet id="create-table-customer"
          		author="rbenazzato">
-		<createTable tableName="UTENTE">
-			<column name="ID_UTENTE"
+		<createTable tableName="CUSTOMER">
+			<column name="CUSTOMER_ID"
       				type="varchar(20${char})">
 				<constraints primaryKey="true"
-           					primaryKeyName="PK_UTENTE"/>
+           					primaryKeyName="PK_CUSTOMERCUSTOMER"/>
 			</column>
 			<column name="ID_SSO"
       				type="varchar(36${char})">
@@ -18,7 +18,7 @@
 			</column>
 		</createTable>
 		<rollback>
-			<dropTable tableName="UTENTE"/>
+			<dropTable tableName="CUSTOMER"/>
 		</rollback>
 	</changeSet>
 	<changeSet id="create-table-vendor"

@@ -12,4 +12,7 @@ public class ErrorStatus {
   public static int RECEIVED_BUT_NEVER_SENT = 300;
   public static int RECEIVED_BY_UNIDENTIFIED_VENDOR = 400;
   public static int FILLED_WITH_UNKNOWN_PRODUCT = 500;
+  public static int SENT_TO_WRONG_CUSTOMER = 600;
+  public static int RECEIVED_BY_WRONG_CUSTOMER = 700;
+  public static int RECEIVED_BY_UNIDENTIFIED_CUSTOMER = 800;
 }

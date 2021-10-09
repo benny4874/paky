@@ -3,14 +3,13 @@ package com.masa.endpoint.paky;
 import com.masa.endpoint.paky.beans.ExpeditionCommand;
 import com.masa.endpoint.paky.beans.NewPaky;
 import com.masa.endpoint.paky.beans.PakyAnswer;
-import com.masa.paky.paky.PakyExpeditionManager;
+import com.masa.paky.paky.expedition.VendorExpeditionManager;
 import com.masa.paky.paky.PakyLifeCycleHandlerFactory;
 import com.masa.paky.paky.PakyReservationManager;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
 import com.masa.paky.paky.exceptions.DestinationMissMatchException;
 import com.masa.paky.paky.exceptions.PakyNotFoundException;
-import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.entity.VendorRepository;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;
 import io.micronaut.core.annotation.Introspected;
@@ -20,6 +19,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
+
 import java.util.Optional;
 
 @ExecuteOn(TaskExecutors.IO)
@@ -71,9 +71,9 @@ public class PakyHandler {
   HttpResponse<PakyAnswer> sendPaky(
       @PathVariable(value = "pakyId") String pakyId, @Body ExpeditionCommand recipient) {
     try {
-      PakyExpeditionManager<Vendor, String> pakyExpeditionManager =
-          new PakyExpeditionManager<>(vendorRepository, pakyRepository);
-      pakyExpeditionManager.send(pakyId, recipient.getVendorId());
+      VendorExpeditionManager vendorExpeditionManager =
+          new VendorExpeditionManager(vendorRepository, pakyRepository);
+      vendorExpeditionManager.send(pakyId, recipient.getVendorId());
       return HttpResponse.ok(new PakyAnswer("Paky sent to " + recipient.getVendorId()));
     } catch (PakyNotFoundException
         | VendorNotFoundException
@@ -86,9 +86,9 @@ public class PakyHandler {
   HttpResponse<PakyAnswer> receivePaky(
       @PathVariable(value = "pakyId") String pakyId, @Body ExpeditionCommand recipient) {
     try {
-      PakyExpeditionManager<Vendor, String> pakyExpeditionManager =
-          new PakyExpeditionManager<>(vendorRepository, pakyRepository);
-      pakyExpeditionManager.receive(pakyId, recipient.getVendorId());
+      VendorExpeditionManager vendorExpeditionManager =
+          new VendorExpeditionManager(vendorRepository, pakyRepository);
+      vendorExpeditionManager.receive(pakyId, recipient.getVendorId());
       return HttpResponse.ok(new PakyAnswer("Paky sent to " + recipient.getVendorId()));
     } catch (PakyNotFoundException
         | VendorNotFoundException
