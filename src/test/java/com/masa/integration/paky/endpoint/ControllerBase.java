@@ -30,6 +30,7 @@ public class ControllerBase {
     public static final String CLEANUP_PAKY = "delete from PAKY";
     public static final String CLEANUP_MACHINERY = "delete from MACHINERY";
     public static final String CLEANUP_RECIPE = "delete from RECIPE";
+    public static final String CLEANUP_CUSTOMER = "delete from CUSTOMER";
     public static final JdbcDatabaseContainer db =
             (JdbcDatabaseContainer) new MySQLContainer("mysql:latest").withExposedPorts(3306, 3306);
 
@@ -62,10 +63,11 @@ public class ControllerBase {
         Class.forName(JDBC_DRIVER);
         final Connection connection =
                 DriverManager.getConnection(db.getJdbcUrl(), db.getUsername(), db.getPassword());
-        execute(connection, CLEANUP_VENDOR);
+        execute(connection, CLEANUP_RECIPE);
         execute(connection, CLEANUP_MACHINERY);
         execute(connection, CLEANUP_PAKY);
-        execute(connection, CLEANUP_RECIPE);
+        execute(connection, CLEANUP_VENDOR);
+        execute(connection, CLEANUP_CUSTOMER);
         connection.close();
     }
 
@@ -73,7 +75,14 @@ public class ControllerBase {
     @SneakyThrows
     protected void givenExistsVendor() {
         final Connection connection = getJdbcConnection();
-        execute(connection, "insert into VENDOR (VENDOR_ID,ID_SSO) values ('vendor1','" + "vendor1" + "')");
+        execute(connection, "insert into VENDOR (VENDOR_ID,ID_SSO) values ('vendor1','vendor1')");
+        connection.close();
+    }
+
+    @SneakyThrows
+    protected void givenExistsCustomer() {
+        final Connection connection = getJdbcConnection();
+        execute(connection, "insert into CUSTOMER (CUSTOMER_ID,ID_SSO) values ('customer1','customer1')");
         connection.close();
     }
 

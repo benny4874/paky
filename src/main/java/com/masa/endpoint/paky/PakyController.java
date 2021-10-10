@@ -6,6 +6,7 @@ import com.masa.endpoint.paky.beans.NewPaky;
 import com.masa.endpoint.paky.beans.PakyAnswer;
 import com.masa.paky.customer.entity.CustomerRepository;
 import com.masa.paky.customer.exceptions.CustomerNotFoundException;
+import com.masa.paky.paky.expedition.CustomerExpeditionManager;
 import com.masa.paky.paky.expedition.VendorExpeditionManager;
 import com.masa.paky.paky.PakyLifeCycleHandlerFactory;
 import com.masa.paky.paky.reservation.CustomerReservationManager;
@@ -113,6 +114,36 @@ public class PakyController {
       reservationManager.reserve(pakyId, bookRequest.getCustomerId());
       return HttpResponse.ok(new PakyAnswer("Paky reserved for " + bookRequest.getCustomerId()));
     } catch (PakyNotFoundException | CustomerNotFoundException wrongArgument) {
+      return handleError(wrongArgument);
+    }
+  }
+
+  @Post("{pakyId}/deploy")
+  HttpResponse<PakyAnswer> deployPaky(
+          @PathVariable(value = "pakyId") String pakyId, @Body DestinationCommand recipient) {
+    try {
+      CustomerExpeditionManager customerExpeditionManager =
+              new CustomerExpeditionManager(customerRepository, pakyRepository);
+      customerExpeditionManager.send(pakyId, recipient.getCustomerId());
+      return HttpResponse.ok(new PakyAnswer("Paky sent to " + recipient.getCustomerId()));
+    } catch (PakyNotFoundException
+            | CustomerNotFoundException
+            | DestinationMissMatchException wrongArgument) {
+      return handleError(wrongArgument);
+    }
+  }
+
+  @Post("{pakyId}/plug")
+  HttpResponse<PakyAnswer> plugPaky(
+          @PathVariable(value = "pakyId") String pakyId, @Body DestinationCommand recipient) {
+    try {
+      CustomerExpeditionManager customerExpeditionManager =
+              new CustomerExpeditionManager(customerRepository, pakyRepository);
+      customerExpeditionManager.receive(pakyId, recipient.getCustomerId());
+      return HttpResponse.ok(new PakyAnswer("Paky sent to " + recipient.getCustomerId()));
+    } catch (PakyNotFoundException
+            | CustomerNotFoundException
+            | DestinationMissMatchException wrongArgument) {
       return handleError(wrongArgument);
     }
   }
