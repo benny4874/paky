@@ -53,8 +53,8 @@ class PakyLifeCycleHandlerTest {
   @Test
   void newPaky_isEmpty() {
     final Paky paky = createNewPaky();
-    assertEquals(paky.getQuantita(), 0f);
-    assertEquals(paky.getQuantitaPct(), 0f);
+    assertEquals(paky.getQuantity(), 0f);
+    assertEquals(paky.getQuantityPct(), 0f);
   }
 
   @Test
@@ -126,8 +126,8 @@ class PakyLifeCycleHandlerTest {
                 })
             .build());
     assertAll(
-        () -> assertEquals(1, aPaky.getQuantitaPct()),
-        () -> assertEquals(100, aPaky.getQuantita()),
+        () -> assertEquals(1, aPaky.getQuantityPct()),
+        () -> assertEquals(100, aPaky.getQuantity()),
         () -> assertEquals("productId", aPaky.getProductTypeId()),
         () -> assertNotNull(aPaky.getPackingDate()),
         () -> assertEquals(FILLED, aPaky.getStep()),
@@ -184,7 +184,7 @@ class PakyLifeCycleHandlerTest {
     PakyLifeCycleHandler underTest = givenAPakyDeliveredToCustomer();
     final PakyStatus expectedStatus = getActualStep(underTest);
     underTest.report(10);
-    assertEquals(10, getTestPaky(underTest).getQuantita());
+    assertEquals(10, getTestPaky(underTest).getQuantity());
     assertEquals(expectedStatus, getActualStep(underTest));
     verifyIsUpdated(getTestPaky(underTest));
   }

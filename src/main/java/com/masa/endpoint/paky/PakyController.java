@@ -1,11 +1,15 @@
 package com.masa.endpoint.paky;
 
+import com.masa.endpoint.paky.beans.DestinationCommand;
 import com.masa.endpoint.paky.beans.ExpeditionCommand;
 import com.masa.endpoint.paky.beans.NewPaky;
 import com.masa.endpoint.paky.beans.PakyAnswer;
+import com.masa.paky.customer.entity.CustomerRepository;
+import com.masa.paky.customer.exceptions.CustomerNotFoundException;
 import com.masa.paky.paky.expedition.VendorExpeditionManager;
 import com.masa.paky.paky.PakyLifeCycleHandlerFactory;
-import com.masa.paky.paky.PakyReservationManager;
+import com.masa.paky.paky.reservation.CustomerReservationManager;
+import com.masa.paky.paky.reservation.VendorReservationManager;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
 import com.masa.paky.paky.exceptions.DestinationMissMatchException;
@@ -25,16 +29,18 @@ import java.util.Optional;
 @ExecuteOn(TaskExecutors.IO)
 @Introspected
 @Controller("/paky")
-public class PakyHandler {
+public class PakyController {
 
   protected final PakyRepository pakyRepository;
   protected final VendorRepository vendorRepository;
+  protected final CustomerRepository customerRepository;
   private final PakyLifeCycleHandlerFactory lifeCycleHandlerFactory;
 
-  public PakyHandler(PakyRepository pakyRepository, VendorRepository vendorRepository) {
+  public PakyController(PakyRepository pakyRepository, VendorRepository vendorRepository,CustomerRepository customerRepository) {
     this.pakyRepository = pakyRepository;
     lifeCycleHandlerFactory = new PakyLifeCycleHandlerFactory(pakyRepository);
     this.vendorRepository = vendorRepository;
+    this.customerRepository = customerRepository;
   }
 
   @Get("register")
@@ -58,8 +64,8 @@ public class PakyHandler {
       @PathVariable(value = "pakyId") String pakyId, @Body ExpeditionCommand bookRequest) {
 
     try {
-      PakyReservationManager reservationManager =
-          new PakyReservationManager(pakyRepository, vendorRepository);
+      VendorReservationManager reservationManager =
+          new VendorReservationManager(pakyRepository, vendorRepository);
       reservationManager.reserve(pakyId, bookRequest.getVendorId());
       return HttpResponse.ok(new PakyAnswer("Paky reserved for " + bookRequest.getVendorId()));
     } catch (PakyNotFoundException | VendorNotFoundException wrongArgument) {
@@ -93,6 +99,20 @@ public class PakyHandler {
     } catch (PakyNotFoundException
         | VendorNotFoundException
         | DestinationMissMatchException wrongArgument) {
+      return handleError(wrongArgument);
+    }
+  }
+
+  @Post("{pakyId}/destinate")
+  HttpResponse<PakyAnswer> destinatePaky(
+          @PathVariable(value = "pakyId") String pakyId, @Body DestinationCommand bookRequest) {
+
+    try {
+      CustomerReservationManager reservationManager =
+              new CustomerReservationManager(customerRepository, pakyRepository);
+      reservationManager.reserve(pakyId, bookRequest.getCustomerId());
+      return HttpResponse.ok(new PakyAnswer("Paky reserved for " + bookRequest.getCustomerId()));
+    } catch (PakyNotFoundException | CustomerNotFoundException wrongArgument) {
       return handleError(wrongArgument);
     }
   }

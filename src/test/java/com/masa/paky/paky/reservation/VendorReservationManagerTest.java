@@ -1,4 +1,4 @@
-package com.masa.paky.paky;
+package com.masa.paky.paky.reservation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
 import com.masa.paky.paky.exceptions.PakyNotFoundException;
+import com.masa.paky.paky.reservation.VendorReservationManager;
 import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.entity.VendorRepository;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;
@@ -18,7 +19,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class PakyReservationManagerTest {
+class VendorReservationManagerTest {
   @Mock PakyRepository pakyRepository;
   @Mock VendorRepository vendorRepository;
   @Captor ArgumentCaptor<Paky> pakyCaptor;
@@ -26,13 +27,13 @@ class PakyReservationManagerTest {
   Paky paky = new Paky();
   Vendor customer = new Vendor();
 
-  private final PakyReservationManager underTest;
+  private final VendorReservationManager underTest;
 
-  public PakyReservationManagerTest() {
+  public VendorReservationManagerTest() {
     MockitoAnnotations.openMocks(this);
     paky.setIdPaky("paky");
     customer.setVendorId("customer");
-    underTest = new PakyReservationManager(pakyRepository, vendorRepository);
+    underTest = new VendorReservationManager(pakyRepository, vendorRepository);
   }
 
   @Test

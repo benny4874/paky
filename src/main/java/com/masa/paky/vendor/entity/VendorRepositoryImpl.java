@@ -16,7 +16,7 @@ public class VendorRepositoryImpl implements VendorRepository {
 
   @Override
   @ReadOnly
-  public Optional<Vendor> findById(String customerId) {
-    return Optional.ofNullable(entityManager.find(Vendor.class, customerId));
+  public Optional<Vendor> findById(String vendorId) {
+    return Optional.ofNullable(entityManager.find(Vendor.class, vendorId));
   }
 }

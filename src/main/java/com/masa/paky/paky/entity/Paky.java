@@ -19,8 +19,9 @@ import lombok.Setter;
 @Table(name = "PAKY")
 public class Paky {
   @Id private String idPaky;
-  private float quantita;
-  private float quantitaPct;
+  private float originalQuantity;
+  private float quantity;
+  private float quantityPct;
   private String topic;
   private String vendorId;
   private PakyStatus step;

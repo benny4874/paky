@@ -38,7 +38,7 @@ public class RecipeBuilder {
 
   private String generateId() {
     checkField();
-    return vendorId + (new SimpleDateFormat("yyyyMMddhhmmss"));
+    return vendorId + (new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()));
   }
 
   private void checkField() {

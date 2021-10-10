@@ -64,7 +64,7 @@
 							 primaryKeyName="PK_PRODOTTO"/>
 			</column>
 			<column name="RECIPE_ID"
-					type="varchar(20${char})"/>
+					type="varchar(100)"/>
 			<column name="VENDOR_ID"
 					type="varchar(20${char})"/>
 			<column name="DESCRIPTION"
@@ -80,6 +80,8 @@
 				<constraints primaryKey="true"
            					primaryKeyName="PK_RECIPE"/>
 			</column>
+			<column name="DESCRIPTION"
+					type="varchar(255)"/>
 			<column name="QUANTITY"
       				type="float"
       				defaultValueNumeric="0"/>
@@ -88,7 +90,7 @@
 			<column name="BRAND"
       				type="varchar(20${char})"/>
 			<column name="EXPIRATION"
-      				type="varchar(20${char})"/>
+      				type="date"/>
 			<column name="LABEL"
       				type="clob"/>
 		</createTable>
@@ -106,10 +108,13 @@
 			</column>
 			<column name="topic"
       				type="varchar(255${char})"/>
-			<column name="QUANTITA_PCT"
+			<column name="ORIGINAL_QUANTITY"
+					type="float"
+					defaultValueNumeric="0"/>
+			<column name="QUANTITY_PCT"
       				type="float"
       				defaultValueNumeric="0"/>
-			<column name="QUANTITA"
+			<column name="QUANTITY"
       				type="float"
       				defaultValueNumeric="0"/>
 			<column name="CUSTOMER_ID" type="varchar(20${char})"/>
@@ -119,13 +124,13 @@
 			<column name="DATE_CREATED" type="date"/>
 			<column name="LAST_ACTION" type="date"/>
 			<column name="PACKING_DATE"
-					type="varchar(20${char})"/>
+					type="date"/>
 			<column name="UNIT"
 					type="char(2)"/>
 			<column name="BRAND"
 					type="varchar(20${char})"/>
 			<column name="EXPIRATION"
-					type="varchar(20${char})"/>
+					type="date"/>
 			<column name="LABEL"
 					type="clob"/>
 			<column name="TRACIABILITY_STATUS" type="varchar(20${char})"/>

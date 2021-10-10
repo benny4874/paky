@@ -29,9 +29,10 @@ public class PakyLifeCycleHandler {
   }
 
   public void fill(Recipe recipe) {
-    paky.setQuantita(recipe.getQuantity());
+    paky.setQuantity(recipe.getQuantity());
+    paky.setOriginalQuantity(recipe.getQuantity());
     paky.setProductTypeId(recipe.getDescription());
-    paky.setQuantitaPct(1);
+    paky.setQuantityPct(1);
     paky.setPackingDate(new Date());
     paky.setStep(FILLED);
     paky.setLabel(recipe.getLabel());
@@ -68,7 +69,7 @@ public class PakyLifeCycleHandler {
   }
 
   public void report(float quantity) {
-    paky.setQuantita(quantity);
+    paky.setQuantity(quantity);
     save();
   }
 }

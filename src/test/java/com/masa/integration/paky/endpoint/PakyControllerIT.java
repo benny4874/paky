@@ -16,17 +16,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-class PakyHandlerIT extends ControllerBase {
+class PakyControllerIT extends ControllerBase {
 
   public static final String BASE = "/paky/";
 
-  public PakyHandlerIT() {
+  public PakyControllerIT() {
     MockitoAnnotations.openMocks(this);
   }
 
   @Test
   void register_createNewPakyWithEndPoint_response200() {
-    GET("/paky/register");
     final HttpResponse<NewPaky> result =
         client.toBlocking().exchange("/paky/register", NewPaky.class);
     assertEquals(OK.getCode(), result.getStatus().getCode());

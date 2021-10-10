@@ -1,18 +1,23 @@
 package com.masa.integration.paky.endpoint;
 
-import static io.micronaut.http.HttpRequest.POST;
-import static io.micronaut.http.HttpStatus.NOT_FOUND;
-import static io.micronaut.http.HttpStatus.OK;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.masa.endpoint.machinery.beans.MachineryAnswer;
 import com.masa.endpoint.machinery.beans.MachineryCommand;
 import com.masa.endpoint.machinery.beans.MachineryDataAnswer;
+import com.masa.endpoint.machinery.beans.RecipeCommand;
+import com.masa.endpoint.paky.beans.NewPaky;
 import com.masa.paky.machinery.entity.Machinery;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
+
+import java.time.Instant;
+import java.util.Date;
+
+import static io.micronaut.http.HttpRequest.POST;
+import static io.micronaut.http.HttpStatus.NOT_FOUND;
+import static io.micronaut.http.HttpStatus.OK;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MachineryControllerIT extends ControllerBase {
 
@@ -50,13 +55,52 @@ public class MachineryControllerIT extends ControllerBase {
     givenExistsVendor();
     final Machinery machinery = aGivenMachine();
     final HttpResponse<MachineryDataAnswer> result = assign(machinery, "vendor1");
-
     assertEquals(OK.getCode(), result.getStatus().getCode());
     search(machinery.getMachineryId())
-        .getBody()
-        .map(MachineryDataAnswer::getMachinery)
-        .ifPresent($ -> assertEquals("vendor1", $.getVendorId()));
+            .getBody()
+            .map(MachineryDataAnswer::getMachinery)
+            .ifPresent($ -> assertEquals("vendor1", $.getVendorId()));
   }
+
+  @Test
+  void load_validRecipe_answer200_associateRecipe() {
+    givenExistsVendor();
+    final Machinery machinery = aGivenMachine();
+    assign(machinery, "vendor1");
+    RecipeCommand recipe = getRecipeCommand();
+    var result = postRecipeCommand(BASE + machinery.getMachineryId() + "/load", recipe);
+    assertEquals(OK,result.getStatus());
+    assertTrue(result.getBody().isPresent());
+  }
+
+
+
+  @Test
+  void pakyRefill_return200(){
+    givenExistsVendor();
+    final Machinery machinery = aGivenMachine();
+    assign(machinery, "vendor1");
+    RecipeCommand recipe = getRecipeCommand();
+    postRecipeCommand(BASE + machinery.getMachineryId() + "/load", recipe);
+
+    final NewPaky paky = client.toBlocking().exchange("/paky/register", NewPaky.class)
+            .getBody()
+            .get();
+    final HttpResponse<MachineryAnswer> result = postEmptyBodyCommand(BASE + machinery.getMachineryId() + "/" + paky.getIdPaky());
+    assertEquals(OK,result.getStatus());
+  }
+
+  private RecipeCommand getRecipeCommand() {
+    RecipeCommand recipe = new RecipeCommand();
+    recipe.setBrand("brand");
+    recipe.setDescription("bucatini");
+    recipe.setLabel("[{ \"label\": \"value\" }]");
+    recipe.setQuantity(100);
+    recipe.setUnit("gr");
+    recipe.setExpiration(Date.from(Instant.now().plusSeconds(1000)));
+    return recipe;
+  }
+
 
   private Machinery aGivenMachine() {
     return insertNewMachine()
@@ -95,6 +139,12 @@ public class MachineryControllerIT extends ControllerBase {
   }
 
   private HttpResponse<MachineryAnswer> postCommand(String uri, MachineryCommand command) {
+    return client.toBlocking().exchange(POST(uri, command), MachineryAnswer.class);
+  }
+  private HttpResponse<MachineryAnswer> postEmptyBodyCommand(String uri) {
+    return client.toBlocking().exchange(POST(uri , "{}"), MachineryAnswer.class);
+  }
+  private HttpResponse<MachineryAnswer> postRecipeCommand(String uri, RecipeCommand command) {
     return client.toBlocking().exchange(POST(uri, command), MachineryAnswer.class);
   }
 

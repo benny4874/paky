@@ -20,8 +20,8 @@ public class PakyLifeCycleHandlerFactory {
     Paky emptyPaky = new Paky();
     emptyPaky.setIdPaky(UUID.randomUUID().toString());
     emptyPaky.setStep(CREATED);
-    emptyPaky.setQuantita(0f);
-    emptyPaky.setQuantitaPct(0f);
+    emptyPaky.setQuantity(0f);
+    emptyPaky.setQuantityPct(0f);
     emptyPaky.setTopic(emptyPaky.getIdPaky() + "/communication");
     emptyPaky.setDateCreated(new Date());
     emptyPaky.setLastAction(new Date());

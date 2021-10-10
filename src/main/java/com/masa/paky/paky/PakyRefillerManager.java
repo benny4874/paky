@@ -19,7 +19,9 @@ public class PakyRefillerManager {
 
   public void refill(String machineryId, String pakyId) {
     try {
-      withLifeCicleHandlerFactory().getFor(get(pakyId)).fill(getActiveRecipeOn(machineryId));
+      withLifeCicleHandlerFactory()
+              .getFor(get(pakyId))
+              .fill(getActiveRecipeOn(machineryId));
     } catch (RecipeNotFoundException unknownProductError) {
       reportTraciabilityError(pakyId);
       throw unknownProductError;
