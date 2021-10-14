@@ -2,9 +2,8 @@ package com.masa.paky.customer.entity;
 
 import io.micronaut.transaction.annotation.ReadOnly;
 import jakarta.inject.Singleton;
-
-import javax.persistence.EntityManager;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 
 @Singleton
 public class CustomerRepositoryImpl implements CustomerRepository {

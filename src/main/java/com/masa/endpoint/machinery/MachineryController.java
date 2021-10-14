@@ -29,7 +29,7 @@ import io.micronaut.scheduling.annotation.ExecuteOn;
 
 @ExecuteOn(TaskExecutors.IO)
 @Introspected
-@Controller("/machinery")
+@Controller("/api/v1/machinery")
 public class MachineryController {
   protected final VendorRepository vendorRepository;
   protected final MachineryRepository machineryRepository;

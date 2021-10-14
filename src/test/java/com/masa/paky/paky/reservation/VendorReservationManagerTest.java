@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
 import com.masa.paky.paky.exceptions.PakyNotFoundException;
-import com.masa.paky.paky.reservation.VendorReservationManager;
 import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.entity.VendorRepository;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;

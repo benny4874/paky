@@ -1,5 +1,13 @@
 package com.masa.paky.paky.expedition;
 
+import static com.masa.paky.paky.entity.ErrorStatus.RECEIVED_BUT_NEVER_SENT;
+import static com.masa.paky.paky.entity.ErrorStatus.SENT_TO_WRONG_VENDOR;
+import static com.masa.paky.paky.entity.PakyStatus.*;
+import static com.masa.paky.paky.entity.TraciabilityStatus.ERROR;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import com.masa.paky.AddressableFinder;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
@@ -9,6 +17,7 @@ import com.masa.paky.paky.exceptions.PakyNotFoundException;
 import com.masa.paky.paky.exceptions.PakyNotInTransitException;
 import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -16,16 +25,6 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-
-import static com.masa.paky.paky.entity.ErrorStatus.RECEIVED_BUT_NEVER_SENT;
-import static com.masa.paky.paky.entity.ErrorStatus.SENT_TO_WRONG_VENDOR;
-import static com.masa.paky.paky.entity.PakyStatus.*;
-import static com.masa.paky.paky.entity.TraciabilityStatus.ERROR;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 class VendorExpeditionManagerTest {
   @Mock AddressableFinder<Vendor, String> repository;

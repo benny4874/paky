@@ -7,20 +7,20 @@ import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.entity.VendorRepository;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;
 
-public class VendorReservationManager extends ReservationManager<Vendor, String,VendorRepository> {
+public class VendorReservationManager extends ReservationManager<Vendor, String, VendorRepository> {
 
-  public VendorReservationManager(PakyRepository pakyRepository, VendorRepository subjectRepository) {
+  public VendorReservationManager(
+      PakyRepository pakyRepository, VendorRepository subjectRepository) {
     super(subjectRepository, pakyRepository);
   }
 
-
   @Override
   protected SubjectNotFoundException raiseSubjectNotFound(String subjectId) {
-      return  new VendorNotFoundException(subjectId);
+    return new VendorNotFoundException(subjectId);
   }
 
   @Override
   protected void assign(String subjectId, PakyLifeCycleHandler lifeCycleHandler) {
-      lifeCycleHandler.bookFor(subjectId);
+    lifeCycleHandler.bookFor(subjectId);
   }
 }
