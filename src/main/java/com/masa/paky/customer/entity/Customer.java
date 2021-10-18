@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@EqualsAndHashCode(of = "vendorId")
+@EqualsAndHashCode(of = "customerId")
 @Entity
 @Introspected
 @Getter

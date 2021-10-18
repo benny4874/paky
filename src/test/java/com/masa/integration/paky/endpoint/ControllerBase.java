@@ -30,6 +30,7 @@ public class ControllerBase {
   public static final String CLEANUP_MACHINERY = "delete from MACHINERY";
   public static final String CLEANUP_RECIPE = "delete from RECIPE";
   public static final String CLEANUP_CUSTOMER = "delete from CUSTOMER";
+  public static final String CLEANUP_BASE = "delete from BASE";
   public static final JdbcDatabaseContainer db =
       (JdbcDatabaseContainer) new MySQLContainer("mysql:latest").withExposedPorts(3306, 3306);
 
@@ -67,6 +68,7 @@ public class ControllerBase {
     execute(connection, CLEANUP_PAKY);
     execute(connection, CLEANUP_VENDOR);
     execute(connection, CLEANUP_CUSTOMER);
+    execute(connection, CLEANUP_BASE);
     connection.close();
   }
 

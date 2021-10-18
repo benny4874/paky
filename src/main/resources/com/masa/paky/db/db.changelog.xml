@@ -141,6 +141,23 @@
 			<dropTable tableName="PAKY"/>
 		</rollback>
 	</changeSet>
+	<changeSet id="create-table-base"
+			   author="rbenazzato">
+		<createTable tableName="BASE">
+			<column name="BASE_ID"
+					type="varchar(100)">
+				<constraints primaryKey="true"
+							 primaryKeyName="PK_BASE"/>
+			</column>
+
+			<column name="CUSTOMER_ID" type="varchar(20${char})"/>
+
+
+		</createTable>
+		<rollback>
+			<dropTable tableName="BASE"/>
+		</rollback>
+	</changeSet>
 	<!--changeSet author="rbenazzato"
          		id="add-fk-paky-prodotto">
 		<addForeignKeyConstraint baseColumnNames="PRODUCT_TYPE"
