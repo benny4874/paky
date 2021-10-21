@@ -1,154 +1,79 @@
 package com.masa.integration.paky.endpoint;
 
-import static io.micronaut.http.HttpRequest.POST;
-import static io.micronaut.http.HttpStatus.NOT_FOUND;
-import static io.micronaut.http.HttpStatus.OK;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.masa.endpoint.machinery.beans.MachineryAnswer;
-import com.masa.endpoint.machinery.beans.MachineryCommand;
 import com.masa.endpoint.machinery.beans.MachineryDataAnswer;
-import com.masa.endpoint.machinery.beans.RecipeCommand;
 import com.masa.endpoint.paky.beans.NewPaky;
 import com.masa.paky.machinery.entity.Machinery;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import java.time.Instant;
-import java.util.Date;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
+import static io.micronaut.http.HttpStatus.NOT_FOUND;
+import static io.micronaut.http.HttpStatus.OK;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class MachineryControllerIT extends ControllerBase {
 
-  public static final String BASE = "/api/v1/machinery/";
-  public static final String PAKY_REGISTER_URL = "/api/v1/paky/register";
+    @Inject
+    PakyActions pakyActions;
 
-  public MachineryControllerIT() {
-    MockitoAnnotations.openMocks(this);
-  }
+    @Inject
+    MachineryActions machineryActions;
 
-  @Test
-  void register_createNewMachinery_response200() {
-    final HttpResponse<MachineryAnswer> result = insertNewMachine();
-    assertEquals(OK.getCode(), result.getStatus().getCode());
-    assertTrue(result.getBody().isPresent());
-  }
+    public MachineryControllerIT() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-  @Test
-  void find_ExistingMachine_answer200_returnTheMachine() {
-    final HttpResponse<MachineryDataAnswer> result =
-        insertNewMachine().getBody().map(this::search).get();
+    @Test
+    void register_createNewMachinery_response200() {
+        final HttpResponse<MachineryAnswer> result = machineryActions.insertNewMachine();
+        assertEquals(OK.getCode(), result.getStatus().getCode());
+        assertTrue(result.getBody().isPresent());
+    }
 
-    assertEquals(OK.getCode(), result.getStatus().getCode());
-    result.getBody().ifPresentOrElse(this::check, () -> fail("machinery not in body"));
-  }
+    @Test
+    void find_ExistingMachine_answer200_returnTheMachine() {
+        final HttpResponse<MachineryDataAnswer> result =
+                machineryActions.insertNewMachine().getBody().map(machineryActions::search).get();
 
-  @Test
-  void find_notExistingMachine_answer400_returnTheMachine() {
-    final HttpClientResponseException response =
-        assertThrows(HttpClientResponseException.class, () -> search("aMachineThatNOtExists"));
-    assertEquals(NOT_FOUND.getCode(), response.getStatus().getCode());
-  }
+        assertEquals(OK.getCode(), result.getStatus().getCode());
+        result.getBody().ifPresentOrElse(machineryActions::check, () -> fail("machinery not in body"));
+    }
 
-  @Test
-  void assign_ExistingVendor_answer200_associateVendor() {
-    givenExistsVendor();
-    final Machinery machinery = aGivenMachine();
-    final HttpResponse<MachineryDataAnswer> result = assign(machinery, "vendor1");
-    assertEquals(OK.getCode(), result.getStatus().getCode());
-    search(machinery.getMachineryId())
-        .getBody()
-        .map(MachineryDataAnswer::getMachinery)
-        .ifPresent($ -> assertEquals("vendor1", $.getVendorId()));
-  }
+    @Test
+    void find_notExistingMachine_answer400_returnTheMachine() {
+        final HttpClientResponseException response =
+                assertThrows(HttpClientResponseException.class, () -> machineryActions.search("aMachineThatNOtExists"));
+        assertEquals(NOT_FOUND.getCode(), response.getStatus().getCode());
+    }
 
-  @Test
-  void load_validRecipe_answer200_associateRecipe() {
-    givenExistsVendor();
-    final Machinery machinery = aGivenMachine();
-    assign(machinery, "vendor1");
-    RecipeCommand recipe = getRecipeCommand();
-    var result = postRecipeCommand(BASE + machinery.getMachineryId() + "/load", recipe);
-    assertEquals(OK, result.getStatus());
-    assertTrue(result.getBody().isPresent());
-  }
+    @Test
+    void assign_ExistingVendor_answer200_associateVendor() {
+        final Machinery machinery = machineryActions.aGivenMachine();
+        final HttpResponse<MachineryDataAnswer> result = machineryActions.assign(machinery, "vendor1");
+        assertEquals(OK.getCode(), result.getStatus().getCode());
+        machineryActions.search(machinery.getMachineryId())
+                .getBody()
+                .map(MachineryDataAnswer::getMachinery)
+                .ifPresent($ -> assertEquals("vendor1", $.getVendorId()));
+    }
 
-  @Test
-  void pakyRefill_return200() {
-    givenExistsVendor();
-    final Machinery machinery = aGivenMachine();
-    assign(machinery, "vendor1");
-    RecipeCommand recipe = getRecipeCommand();
-    postRecipeCommand(BASE + machinery.getMachineryId() + "/load", recipe);
+    @Test
+    void load_validRecipe_answer200_associateRecipe() {
+        HttpResponse<MachineryAnswer> result = machineryActions.aGivenMachineLoadRecipe();
+        assertEquals(OK, result.getStatus());
+        assertTrue(result.getBody().isPresent());
+    }
 
-    final NewPaky paky =
-        client.toBlocking().exchange(PAKY_REGISTER_URL, NewPaky.class).getBody().get();
-    final HttpResponse<MachineryAnswer> result =
-        postEmptyBodyCommand(BASE + machinery.getMachineryId() + "/" + paky.getIdPaky());
-    assertEquals(OK, result.getStatus());
-  }
 
-  private RecipeCommand getRecipeCommand() {
-    RecipeCommand recipe = new RecipeCommand();
-    recipe.setBrand("brand");
-    recipe.setDescription("bucatini");
-    recipe.setLabel("[{ \"label\": \"value\" }]");
-    recipe.setQuantity(100);
-    recipe.setUnit("gr");
-    recipe.setExpiration(Date.from(Instant.now().plusSeconds(1000)));
-    return recipe;
-  }
+    @Test
+    void pakyRefill_return200() {
+        final NewPaky paky = pakyActions.registerPaky().body();
+        final HttpResponse<MachineryAnswer> result = machineryActions.refillPaky(paky);
+        assertEquals(OK, result.getStatus());
+    }
 
-  private Machinery aGivenMachine() {
-    return insertNewMachine()
-        .getBody()
-        .map(this::search)
-        .flatMap(HttpResponse::getBody)
-        .get()
-        .getMachinery();
-  }
 
-  private HttpResponse<MachineryDataAnswer> assign(Machinery machinery, String vendorId) {
-    final MachineryCommand machineryCommand = new MachineryCommand();
-    machineryCommand.setVendorId(vendorId);
-    return postAssignCommand(BASE + machinery.getMachineryId() + "/assign", machineryCommand);
-  }
-
-  private void check(MachineryDataAnswer machineryDataAnswer) {
-    final Machinery machinery = machineryDataAnswer.getMachinery();
-    assertEquals("description", machinery.getDescription());
-    assertNull(machinery.getVendorId());
-  }
-
-  private HttpResponse<MachineryDataAnswer> search(MachineryAnswer machineryAnswer) {
-    final String machineryId = machineryAnswer.getReturnMessage();
-    return search(machineryId);
-  }
-
-  private HttpResponse<MachineryDataAnswer> search(String machineryId) {
-    return client.toBlocking().exchange(BASE + machineryId, MachineryDataAnswer.class);
-  }
-
-  private HttpResponse<MachineryAnswer> insertNewMachine() {
-    final MachineryCommand machineryCommand = new MachineryCommand();
-    machineryCommand.setDescription("description");
-    return postCommand(BASE + "register", machineryCommand);
-  }
-
-  private HttpResponse<MachineryAnswer> postCommand(String uri, MachineryCommand command) {
-    return client.toBlocking().exchange(POST(uri, command), MachineryAnswer.class);
-  }
-
-  private HttpResponse<MachineryAnswer> postEmptyBodyCommand(String uri) {
-    return client.toBlocking().exchange(POST(uri, "{}"), MachineryAnswer.class);
-  }
-
-  private HttpResponse<MachineryAnswer> postRecipeCommand(String uri, RecipeCommand command) {
-    return client.toBlocking().exchange(POST(uri, command), MachineryAnswer.class);
-  }
-
-  private HttpResponse<MachineryDataAnswer> postAssignCommand(
-      String uri, MachineryCommand command) {
-    return client.toBlocking().exchange(POST(uri, command), MachineryDataAnswer.class);
-  }
 }

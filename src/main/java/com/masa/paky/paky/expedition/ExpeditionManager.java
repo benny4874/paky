@@ -119,8 +119,10 @@ public abstract class ExpeditionManager<T extends Addressable, I extends Seriali
   }
 
   private void deliver(Paky paky) {
-    setStep(paky, DELIVERED);
+    setStep(paky, getDeliveredStatus());
   }
+
+  protected abstract PakyStatus getDeliveredStatus();
 
   private void setStep(Paky paky, PakyStatus step) {
     paky.setStep(step);

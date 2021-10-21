@@ -1,12 +1,15 @@
 package com.masa.paky.paky.expedition;
 
 import static com.masa.paky.paky.entity.ErrorStatus.*;
+import static com.masa.paky.paky.entity.PakyStatus.DELIVERED;
+import static com.masa.paky.paky.entity.PakyStatus.OPERATING;
 
 import com.masa.paky.AddressableFinder;
 import com.masa.paky.customer.entity.Customer;
 import com.masa.paky.customer.exceptions.CustomerNotFoundException;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
+import com.masa.paky.paky.entity.PakyStatus;
 import com.masa.paky.paky.exceptions.DestinationMissMatchException;
 
 public class CustomerExpeditionManager extends ExpeditionManager<Customer, String> {
@@ -23,6 +26,11 @@ public class CustomerExpeditionManager extends ExpeditionManager<Customer, Strin
   @Override
   protected int getUnidentifiedRecipiente() {
     return RECEIVED_BY_UNIDENTIFIED_CUSTOMER;
+  }
+
+  @Override
+  protected PakyStatus getDeliveredStatus() {
+    return OPERATING;
   }
 
   @Override

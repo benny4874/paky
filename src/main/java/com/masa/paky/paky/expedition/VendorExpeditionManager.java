@@ -1,10 +1,12 @@
 package com.masa.paky.paky.expedition;
 
 import static com.masa.paky.paky.entity.ErrorStatus.*;
+import static com.masa.paky.paky.entity.PakyStatus.DELIVERED;
 
 import com.masa.paky.AddressableFinder;
 import com.masa.paky.paky.entity.Paky;
 import com.masa.paky.paky.entity.PakyRepository;
+import com.masa.paky.paky.entity.PakyStatus;
 import com.masa.paky.paky.exceptions.DestinationMissMatchException;
 import com.masa.paky.vendor.entity.Vendor;
 import com.masa.paky.vendor.exceptions.VendorNotFoundException;
@@ -24,6 +26,11 @@ public class VendorExpeditionManager extends ExpeditionManager<Vendor, String> {
   @Override
   protected int getUnidentifiedRecipiente() {
     return RECEIVED_BY_UNIDENTIFIED_VENDOR;
+  }
+
+  @Override
+  protected PakyStatus getDeliveredStatus() {
+    return DELIVERED;
   }
 
   @Override

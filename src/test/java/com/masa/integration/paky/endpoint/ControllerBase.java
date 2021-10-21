@@ -33,6 +33,9 @@ public class ControllerBase {
   public static final String CLEANUP_BASE = "delete from BASE";
   public static final JdbcDatabaseContainer db =
       (JdbcDatabaseContainer) new MySQLContainer("mysql:latest").withExposedPorts(3306, 3306);
+  public static final String BASE_PAKY_URL = "/api/v1/paky/";
+  public static final String BASE_MACHINERY_URL = "/api/v1/machinery/";
+  public static final String BASE_BASE_URL = "/api/v1/base/";
 
   @Inject
   @Client("/")
@@ -70,6 +73,8 @@ public class ControllerBase {
     execute(connection, CLEANUP_CUSTOMER);
     execute(connection, CLEANUP_BASE);
     connection.close();
+    givenExistsVendor();
+    givenExistsCustomer();
   }
 
   @SneakyThrows

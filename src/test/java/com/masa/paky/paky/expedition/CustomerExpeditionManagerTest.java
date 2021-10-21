@@ -107,7 +107,7 @@ class CustomerExpeditionManagerTest {
   void paky_receiveCustomer_StepReceived() {
     Paky fixture = agivenPakySent();
     underTest.receive(fixture.getIdPaky(), "aCustomer");
-    assertEquals(DELIVERED, fixture.getStep());
+    assertEquals(OPERATING, fixture.getStep());
     verify(pakyRepository).update(fixture);
   }
 
@@ -164,7 +164,7 @@ class CustomerExpeditionManagerTest {
     receive(pakyId, realCustomer);
     verify(pakyRepository).update(fixture);
     assertAll(
-        () -> assertEquals(DELIVERED, fixture.getStep()),
+        () -> assertEquals(OPERATING, fixture.getStep()),
         () -> assertEquals(realCustomer, fixture.getCustomerId()),
         () -> assertEquals(erroprCode, fixture.getErrorCode()),
         () -> assertEquals(ERROR, fixture.getTraciabilityStatus()));
@@ -179,7 +179,7 @@ class CustomerExpeditionManagerTest {
         () -> underTest.receive(fixture.getIdPaky(), fixture.getCustomerId()));
     verify(pakyRepository).update(fixture);
     assertAll(
-        () -> assertEquals(DELIVERED, fixture.getStep()),
+        () -> assertEquals(OPERATING, fixture.getStep()),
         () -> assertEquals(ERROR, fixture.getTraciabilityStatus()),
         () -> assertEquals(RECEIVED_BUT_NEVER_SENT, fixture.getErrorCode()));
   }
