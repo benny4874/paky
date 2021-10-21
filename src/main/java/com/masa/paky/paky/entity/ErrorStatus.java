@@ -15,4 +15,6 @@ public class ErrorStatus {
   public static int SENT_TO_WRONG_CUSTOMER = 600;
   public static int RECEIVED_BY_WRONG_CUSTOMER = 700;
   public static int RECEIVED_BY_UNIDENTIFIED_CUSTOMER = 800;
+  public static int INVALID_QUANTITY_REPORTED = 900;
+  public static int PAKY_NOT_RECEIVED_BUT_OPERATING = 1000;
 }

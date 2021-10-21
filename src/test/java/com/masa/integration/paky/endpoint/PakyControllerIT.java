@@ -1,42 +1,46 @@
 package com.masa.integration.paky.endpoint;
 
-import static io.micronaut.http.HttpRequest.POST;
+
 import static io.micronaut.http.HttpStatus.OK;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.masa.endpoint.paky.beans.DestinationCommand;
-import com.masa.endpoint.paky.beans.ExpeditionCommand;
-import com.masa.endpoint.paky.beans.NewPaky;
-import com.masa.endpoint.paky.beans.PakyAnswer;
+import static org.mockito.MockitoAnnotations.openMocks;
+import com.masa.endpoint.paky.beans.*;
 import com.masa.paky.paky.entity.Paky;
 import io.micronaut.http.HttpResponse;
 import java.util.Optional;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+
 
 class PakyControllerIT extends ControllerBase {
+  @Inject
+  PakyActions pakyActions;
 
-  public static final String BASE = "/api/v1/paky/";
+  @Inject
+  MachineryActions machineryActions;
+
+  @Inject
+  BaseActions baseActions;
 
   public PakyControllerIT() {
-    MockitoAnnotations.openMocks(this);
+    openMocks(this);
   }
 
   @Test
   void register_createNewPakyWithEndPoint_response200() {
     final HttpResponse<NewPaky> result =
-        client.toBlocking().exchange(BASE + "register", NewPaky.class);
+            pakyActions.registerPaky();
     assertEquals(OK.getCode(), result.getStatus().getCode());
     assertTrue(result.getBody().isPresent());
   }
 
+
+
   @Test
   void registerPaky_searchReturnedId_returnthePaky() {
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    final HttpResponse<Paky> searchResponse =
-        client.toBlocking().exchange(BASE + expectedSummary.get().getIdPaky(), Paky.class);
+    final Optional<NewPaky> expectedSummary = pakyActions.givenAPaky();
+    final HttpResponse<Paky> searchResponse = pakyActions.search(expectedSummary.get().getIdPaky());
     assertEquals(OK.getCode(), searchResponse.getStatus().getCode());
     assertTrue(searchResponse.getBody().isPresent());
     final Paky result = searchResponse.getBody().get();
@@ -46,122 +50,55 @@ class PakyControllerIT extends ControllerBase {
 
   @Test
   void registerPaky_bookPakyForCustomer_wellDone() {
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
+    final Optional<NewPaky> expectedSummary = pakyActions.givenAPaky();
+    pakyActions.check(expectedSummary);
     final NewPaky target = expectedSummary.get();
-    final HttpResponse<PakyAnswer> result = bookTo(target);
+    final HttpResponse<PakyAnswer> result = pakyActions.bookTo(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
   @Test
   void sendPaky_bookPakyForCustomer_wellDone() {
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
-    final NewPaky target = expectedSummary.get();
-    bookTo(target);
-    final HttpResponse<PakyAnswer> result = sendTo(target);
+    final NewPaky target = pakyActions.aGivenPakyBookedByAVendor();
+    final HttpResponse<PakyAnswer> result = pakyActions.sendTo(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
   @Test
   void receivePaky_bookPakyForCustomer_wellDone() {
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
-    final NewPaky target = expectedSummary.get();
-    bookTo(target);
-    sendTo(target);
-    final HttpResponse<PakyAnswer> result = receive(target);
+    final NewPaky target = pakyActions.agivenPakySentToVendor();
+    final HttpResponse<PakyAnswer> result = pakyActions.receive(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
   @Test
   void destinatePaky_bookPakyForCustomer_wellDone() {
-    givenExistsCustomer();
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
-    final NewPaky target = expectedSummary.get();
-    bookTo(target);
-    sendTo(target);
-    receive(target);
-    final HttpResponse<PakyAnswer> result = destinate(target);
+    final NewPaky target = pakyActions.aPakyReceivedByVendor();
+    final HttpResponse<PakyAnswer> result = pakyActions.destinate(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
   @Test
   void deployPaky_bookPakyForCustomer_wellDone() {
-    givenExistsCustomer();
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
-    final NewPaky target = expectedSummary.get();
-    bookTo(target);
-    sendTo(target);
-    receive(target);
-    destinate(target);
-    final HttpResponse<PakyAnswer> result = deploy(target);
+    final NewPaky target = pakyActions.aPakyDestinateToACustomer();
+    final HttpResponse<PakyAnswer> result = pakyActions.deploy(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
   @Test
   void plugPaky_bookPakyForCustomer_wellDone() {
-    givenExistsCustomer();
-    givenExistsVendor();
-    final Optional<NewPaky> expectedSummary = givenAPaky();
-    check(expectedSummary);
-    final NewPaky target = expectedSummary.get();
-    bookTo(target);
-    sendTo(target);
-    receive(target);
-    destinate(target);
-    deploy(target);
-    final HttpResponse<PakyAnswer> result = plug(target);
+    final NewPaky target = pakyActions.aPakySentToACustomer();
+    final HttpResponse<PakyAnswer> result = pakyActions.plug(target);
     assertEquals(OK.getCode(), result.status().getCode());
   }
 
-  private void check(Optional<NewPaky> expectedSummary) {
-    if (!expectedSummary.isPresent()) fail("paky non inserito");
+  @Test
+  void pluggedPaky_report_statusUpdate() {
+    final NewPaky paky = pakyActions.aPluggedPaky();
+    HttpResponse<PakyAnswer> result = pakyActions.postCommand(BASE_PAKY_URL + paky.getIdPaky() + "/report",new ReportCommand(10));
+    assertEquals(OK.getCode(), result.status().getCode());
+    assertTrue(result.getBody().isPresent());
   }
 
-  private Optional<NewPaky> givenAPaky() {
-    final HttpResponse<NewPaky> expectedPakySummary =
-        client.toBlocking().exchange(BASE + "/register", NewPaky.class);
-    return expectedPakySummary.getBody();
-  }
 
-  private HttpResponse<PakyAnswer> receive(NewPaky target) {
-    return postCommand(BASE + target.getIdPaky() + "/receive", new ExpeditionCommand("vendor1"));
-  }
-
-  private HttpResponse<PakyAnswer> destinate(NewPaky target) {
-    return postCommand(
-        BASE + target.getIdPaky() + "/destinate", new DestinationCommand("customer1"));
-  }
-
-  private HttpResponse<PakyAnswer> deploy(NewPaky target) {
-    return postCommand(BASE + target.getIdPaky() + "/deploy", new DestinationCommand("customer1"));
-  }
-
-  private HttpResponse<PakyAnswer> plug(NewPaky target) {
-    return postCommand(BASE + target.getIdPaky() + "/plug", new DestinationCommand("customer1"));
-  }
-
-  private HttpResponse<PakyAnswer> bookTo(NewPaky target) {
-    return postCommand(BASE + target.getIdPaky() + "/book", new ExpeditionCommand("vendor1"));
-  }
-
-  private HttpResponse<PakyAnswer> sendTo(NewPaky target) {
-    return postCommand(BASE + target.getIdPaky() + "/send", new ExpeditionCommand("vendor1"));
-  }
-
-  private HttpResponse<PakyAnswer> postCommand(String uri, ExpeditionCommand command) {
-    return client.toBlocking().exchange(POST(uri, command), PakyAnswer.class);
-  }
-
-  private HttpResponse<PakyAnswer> postCommand(String uri, DestinationCommand command) {
-    return client.toBlocking().exchange(POST(uri, command), PakyAnswer.class);
-  }
 }
